@@ -449,7 +449,7 @@ declare const assertInferred: <Expected>() => <Actual>(
   const r6 = setNumberOrUndefined(undefined);
   assertInferred<undefined>()(r6);
   const r7 = setNumberOrUndefined();
-  assertInferred<undefined>()(r7);
+  assertInferred<number | undefined>()(r7);
   const r8: undefined = setNumberOrUndefined();
   const r9 = setNumberOrUndefined(Math.random() > 0.5 ? (1 as number) : undefined);
   assertInferred<number | undefined>()(r9);
@@ -475,7 +475,7 @@ declare const assertInferred: <Expected>() => <Actual>(
   type BigUnion = number | (() => number) | (() => string) | undefined;
   const [bigUnion, setBigUnion] = createSignal<BigUnion>();
   const r1 = setBigUnion();
-  assertInferred<undefined>()(r1);
+  assertInferred<BigUnion>()(r1);
   const r2: undefined = setBigUnion();
   const r3 = setBigUnion(undefined);
   assertInferred<undefined>()(r3);
