@@ -363,3 +363,84 @@ const s6: Setter<undefined> = setNumberOrUndefined;
 const s7: Setter<string> = setUndefined;
 // @ts-expect-error can't set string to undefined
 const s8: Setter<string | undefined> = setUndefined;
+
+//////////////////////////////////////////////////////////////////////////
+// test setter inference //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+// use assertInferred<type>()(...) instead of const rN: type = ...
+// to prevent the type annotation from influencing type inference
+type IsEqual<T, U> = [T] extends [U] ? ([U] extends [T] ? T : never) : never;
+declare const assertInferred: <Expected>() => <Actual>(
+  actual: Actual & IsEqual<NoInfer<Actual>, Expected>
+) => void;
+
+{
+  const r1 = setNumber(1 as number);
+  assertInferred<number>()(r1);
+  const r2 = setNumber(1 as const);
+  assertInferred<1>()(r2);
+  // @ts-expect-error cannot set number to undefined
+  const r3 = setNumber();
+  // @ts-expect-error cannot set number to undefined
+  const r4 = setNumber(undefined);
+  const r5 = setNumberOrUndefined(1 as number);
+  assertInferred<number>()(r5);
+  const r6 = setNumberOrUndefined(undefined);
+  assertInferred<undefined>()(r6);
+  const r7 = setNumberOrUndefined();
+  assertInferred<undefined>()(r7);
+  const r8: undefined = setNumberOrUndefined();
+  const r9 = setNumberOrUndefined(Math.random() > 0.5 ? (1 as number) : undefined);
+  assertInferred<number | undefined>()(r9);
+  const r10 = setUndefined(undefined);
+  assertInferred<undefined>()(r10);
+  const r11 = setUndefined();
+  assertInferred<undefined>()(r11);
+}
+
+{
+  const [stringOrNumber, setStringOrNumber] = createSignal<string | number>("");
+  const r1 = setStringOrNumber(1 as string | number);
+  assertInferred<string | number>()(r1);
+  const r2 = setStringOrNumber(() => 1 as string | number);
+  assertInferred<string | number>()(r2);
+  // @ts-expect-error specifying the type parameter is necessary here due to inference limitations
+  const r3 = setStringOrNumber("" as string | (() => number));
+  const r4 = setStringOrNumber<string | number>("" as string | (() => number));
+  assertInferred<string | number>()(r4);
+}
+
+{
+  type BigUnion = number | (() => number) | (() => string) | undefined;
+  const [bigUnion, setBigUnion] = createSignal<BigUnion>();
+  const r1 = setBigUnion();
+  assertInferred<undefined>()(r1);
+  const r2: undefined = setBigUnion();
+  const r3 = setBigUnion(undefined);
+  assertInferred<undefined>()(r3);
+  const r4 = setBigUnion(() => undefined);
+  assertInferred<undefined>()(r4);
+  const r5 = setBigUnion(() => 1 as number);
+  assertInferred<number>()(r5);
+  const r6 = setBigUnion(() => 1 as number | undefined);
+  assertInferred<number | undefined>()(r6);
+  const r7 = setBigUnion(() => 1 as number | undefined | (() => number));
+  assertInferred<number | undefined | (() => number)>()(r7);
+  const r8 = setBigUnion(() => 1 as number | undefined | (() => string));
+  assertInferred<number | undefined | (() => string)>()(r8);
+  const r9 = setBigUnion(x => x);
+  assertInferred<BigUnion>()(r9);
+  // @ts-expect-error cannot assign string to big union
+  const r10 = setBigUnion(() => "" as string);
+  // @ts-expect-error cannot assign string to big union
+  const r11 = setBigUnion(() => 1 as number | string);
+  // @ts-expect-error cannot assign string to big union
+  const r12 = setBigUnion(1 as BigUnion);
+  const r13 = setBigUnion(1 as number | (() => number));
+  assertInferred<number>()(r13);
+  // @ts-expect-error specifying the type parameter is necessary here due to inference limitations
+  const r14 = setBigUnion(1 as number | undefined | (() => number));
+  const r15 = setBigUnion<number | undefined>(1 as number | undefined | (() => number));
+  assertInferred<number | undefined>()(r15);
+}
