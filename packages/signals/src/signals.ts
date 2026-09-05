@@ -132,14 +132,15 @@ export function accessor<T>(node: any): SourceAccessor<T> {
  * To store a function as the value itself (rather than as an updater), wrap it
  * with an updater: `setHandler(() => myHandler)`.
  */
-export type Setter<in out T> = {
-  <U extends T>(
-    ...args: undefined extends T ? [] : [value: Exclude<U, Function> | ((prev: T) => U)]
-  ): undefined extends T ? undefined : U;
-  <U extends T>(value: (prev: T) => U): U;
-  <U extends T>(value: Exclude<U, Function>): U;
-  <U extends T>(value: Exclude<U, Function> | ((prev: T) => U)): U;
-};
+// avoid using generic overloads to keep assignment soundness, see https://github.com/microsoft/TypeScript/issues/50050
+// default for `U` allows `setState()` to have a return type of `undefined` even when no type annotations are present
+export type Setter<in out T> = <U extends T = Extract<T, undefined>>(
+  ...args:
+    | [value: Exclude<U, Function>]
+    | [updater: (prev: T) => U]
+    | [valueOrUpdater: Exclude<U, Function> | ((prev: T) => U)]
+    | (U extends undefined ? [] : never)
+) => U;
 
 /** A `[get, set]` pair returned from `createSignal` / `createOptimistic`. */
 export type Signal<T> = [get: SourceAccessor<T>, set: Setter<T>];
