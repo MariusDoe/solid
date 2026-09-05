@@ -132,14 +132,39 @@ export function accessor<T>(node: any): SourceAccessor<T> {
  * To store a function as the value itself (rather than as an updater), wrap it
  * with an updater: `setHandler(() => myHandler)`.
  */
-export type Setter<in out T> = {
-  <U extends T>(
-    ...args: undefined extends T ? [] : [value: Exclude<U, Function> | ((prev: T) => U)]
-  ): undefined extends T ? undefined : U;
-  <U extends T>(value: (prev: T) => U): U;
-  <U extends T>(value: Exclude<U, Function>): U;
-  <U extends T>(value: Exclude<U, Function> | ((prev: T) => U)): U;
-};
+// Convoluted definition to satisfy these requirements:
+// 1. avoid using generic overloads to keep assignment soundness, see https://github.com/microsoft/TypeScript/issues/50050
+// 2. intellisense should show proper overloads
+//    a) independent of current number of arguments: `setState(<cursor>)` should also show overloads with arguments
+//    b) with proper default types: `setState(<cursor>)` should show other overloads with `U = T` instead of `U = undefined`
+// 3. support explicit passing of `U`, e. g. `setState<number>(...)`
+// 4. support contextual typing of `U`, e. g. `const x: number = setState(...)`
+// 5. infer return type based on arguments if neither 3. nor 4. is applicable
+export type Setter<in out T> = <U extends T, Args extends SetterArgs<T, U> = SetterArgs<T, U>>(
+  ...args: InferArgsButDisplayOverloads<Args, SetterArgs<T, U>>
+// if `U = T`, the user probably did not specify `U` via 3./4., so just infer.
+// otherwise, let the 3./4. override inference
+) => [T] extends [U] ? InferSetterReturn<Args> : U;
+// NoInfer prevents inference of U from Args, which an lead to
+// 1. inference of a `U` that is too narrow, e. g. `U = string` when `Args = [number | (() => string)]`
+// 2. incorrectly inferred `U`, e. g. `() => number` for `T = number`
+type SetterArgs<T, U> =
+  | [value: ExcludeNoInfer<U, Function>]
+  | [updater: (prev: T) => NoInfer<U>]
+  | [valueOrUpdater: ExcludeNoInfer<U, Function> | ((prev: T) => NoInfer<U>)]
+  | (undefined extends NoInfer<U> ? [] : never);
+type ExcludeNoInfer<T, U> = T extends U ? never : NoInfer<T>;
+// support 5.
+type InferSetterReturn<Args extends unknown[]> = Args extends []
+  ? undefined
+  : Args extends [infer Arg]
+    ? Arg extends (...args: never[]) => infer U
+      ? U
+      : Arg
+    : never;
+// to support 2. and 5., fool TypeScript into both inferring Args from the call site
+// AND showing overloads from Overloads in intellisense
+type InferArgsButDisplayOverloads<Args, Overloads> = Args extends Args ? Overloads : Args;
 
 /** A `[get, set]` pair returned from `createSignal` / `createOptimistic`. */
 export type Signal<T> = [get: SourceAccessor<T>, set: Setter<T>];

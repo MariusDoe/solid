@@ -465,10 +465,8 @@ declare const assertInferred: <Expected>() => <Actual>(
   assertInferred<string | number>()(r1);
   const r2 = setStringOrNumber(() => 1 as string | number);
   assertInferred<string | number>()(r2);
-  // @ts-expect-error specifying the type parameter is necessary here due to inference limitations
   const r3 = setStringOrNumber("" as string | (() => number));
-  const r4 = setStringOrNumber<string | number>("" as string | (() => number));
-  assertInferred<string | number>()(r4);
+  assertInferred<string | number>()(r3);
 }
 
 {
@@ -499,8 +497,6 @@ declare const assertInferred: <Expected>() => <Actual>(
   const r12 = setBigUnion(1 as BigUnion);
   const r13 = setBigUnion(1 as number | (() => number));
   assertInferred<number>()(r13);
-  // @ts-expect-error specifying the type parameter is necessary here due to inference limitations
   const r14 = setBigUnion(1 as number | undefined | (() => number));
-  const r15 = setBigUnion<number | undefined>(1 as number | undefined | (() => number));
-  assertInferred<number | undefined>()(r15);
+  assertInferred<number | undefined>()(r14);
 }
