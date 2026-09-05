@@ -364,6 +364,66 @@ const s7: Setter<string> = setUndefined;
 // @ts-expect-error can't set string to undefined
 const s8: Setter<string | undefined> = setUndefined;
 
+type SimpleSetter<T> = (x: T) => void;
+// @ts-expect-error can't set number to string
+const ss1: SimpleSetter<string> = setNumber;
+// @ts-expect-error can't set number to string | undefined
+const ss2: SimpleSetter<string | undefined> = setNumber;
+// @ts-expect-error can't set number to undefined
+const ss3: SimpleSetter<undefined> = setNumber;
+// @ts-expect-error can't set number | undefined to string
+const ss4: SimpleSetter<string> = setNumberOrUndefined;
+// @ts-expect-error can't set number to string
+const ss5: SimpleSetter<string | undefined> = setNumberOrUndefined;
+// CAN set number | undefined to undefined
+const ss6: SimpleSetter<undefined> = setNumberOrUndefined;
+// @ts-expect-error can't set undefined to string
+const ss7: SimpleSetter<string> = setUndefined;
+// @ts-expect-error can't set undefined to string
+const ss8: SimpleSetter<string | undefined> = setUndefined;
+// CAN set number to number
+const ss9: SimpleSetter<number> = setNumber;
+// CAN set number | undefined to number
+const ss10: SimpleSetter<number> = setNumberOrUndefined;
+// CAN set number | undefined to undefined
+const ss11: SimpleSetter<undefined> = setNumberOrUndefined;
+// CAN set number | undefined to number | undefined
+const ss12: SimpleSetter<number | undefined> = setNumberOrUndefined;
+
+type FunctionSetter<T, U> = (f: (x: T) => U) => void;
+// @ts-expect-error can't set string to number, function receives number
+const fs1: FunctionSetter<string, string> = setNumber;
+// @ts-expect-error can't set string | undefined to number, function receives number
+const fs2: FunctionSetter<string | undefined, string | undefined> = setNumber;
+// @ts-expect-error can't set undefined to number, function receives number
+const fs3: FunctionSetter<undefined, undefined> = setNumber;
+// @ts-expect-error can't set string to number | undefined, function receives number | undefined
+const fs4: FunctionSetter<string, string> = setNumberOrUndefined;
+// @ts-expect-error can't set string to number, function receives number
+const fs5: FunctionSetter<string | undefined, string | undefined> = setNumberOrUndefined;
+// @ts-expect-error can't set string to number, function receives number
+const fs6: FunctionSetter<string | undefined, undefined> = setNumberOrUndefined;
+// @ts-expect-error function receives number
+const fs7: FunctionSetter<undefined, undefined> = setNumberOrUndefined;
+// @ts-expect-error can't set string to undefined, function receives undefined
+const fs8: FunctionSetter<string, string> = setUndefined;
+// @ts-expect-error can't set string to undefined, function receives undefined
+const fs9: FunctionSetter<string | undefined, string | undefined> = setUndefined;
+// CAN set undefined to undefined
+const fs10: FunctionSetter<string | undefined, undefined> = setUndefined;
+// CAN set number to number
+const fs11: FunctionSetter<number, number> = setNumber;
+// @ts-expect-error can't set number to number | undefined, function receives undefined
+const fs12: FunctionSetter<number, number> = setNumberOrUndefined;
+// @ts-expect-error can't set undefined to number | undefined, function receives number
+const fs13: FunctionSetter<undefined, undefined> = setNumberOrUndefined;
+// CAN set number | undefined to number | undefined
+const fs14: FunctionSetter<number | undefined, number | undefined> = setNumberOrUndefined;
+// CAN set number | undefined to number
+const fs15: FunctionSetter<number | undefined, number> = setNumberOrUndefined;
+// CAN set number | undefined to undefined
+const fs16: FunctionSetter<number | undefined, undefined> = setNumberOrUndefined;
+
 //////////////////////////////////////////////////////////////////////////
 // test setter inference //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
