@@ -71,7 +71,6 @@ export type {
   ExternalSourceConfig,
   ExternalSourceFactory,
   MemoOptions,
-  NoInfer,
   SignalOptions,
   Setter,
   Signal,
@@ -3028,9 +3027,6 @@ export function onSettled(callback: () => void | (() => void)): void {
   const o = getOwner();
   if (o?.id != null) getNextChildId(o);
 }
-
-// NoInfer utility type (also re-exported from signals, but define for local use)
-type NoInfer<T extends any> = [T][T extends any ? 0 : never];
 
 export function storeIsShallow(_proxy: any): boolean {
   return false;

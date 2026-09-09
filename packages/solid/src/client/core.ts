@@ -26,11 +26,6 @@ export const IS_OBSERVE = "_SOLID_OBSERVE_" as string | boolean;
  */
 export const $DEVCOMP = Symbol(IS_DEV ? "COMPONENT_DEV" : 0);
 
-// Magic type that when used at sites where generic types are inferred from, will prevent those sites from being involved in the inference.
-// https://github.com/microsoft/TypeScript/issues/14829
-// TypeScript Discord conversation: https://discord.com/channels/508357248330760243/508357248330760249/911266491024949328
-export type NoInfer<T extends any> = [T][T extends any ? 0 : never];
-
 export type ContextProviderComponent<T> = FlowComponent<{ value: T }>;
 
 // Context API

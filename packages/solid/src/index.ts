@@ -71,7 +71,6 @@ export type {
   ExternalSourceFactory,
   Merge,
   MemoOptions,
-  NoInfer,
   NotWrappable,
   Omit,
   Owner,

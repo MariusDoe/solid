@@ -25,7 +25,6 @@ import {
   type Accessor,
   type ComputeFunction,
   type MemoOptions,
-  type NoInfer,
   type Owner,
   type ProjectionOptions,
   type Refreshable,

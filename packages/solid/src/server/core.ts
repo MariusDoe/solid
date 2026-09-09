@@ -13,9 +13,6 @@ import type { FlowComponent, FlowProps } from "./component.js";
 
 export const $DEVCOMP = Symbol("solid-dev-component");
 
-// Magic type that when used at sites where generic types are inferred from, will prevent those sites from being involved in the inference.
-export type NoInfer<T extends any> = [T][T extends any ? 0 : never];
-
 export type ContextProviderComponent<T> = FlowComponent<{ value: T }>;
 
 // Context API

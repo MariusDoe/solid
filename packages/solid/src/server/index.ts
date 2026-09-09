@@ -89,7 +89,6 @@ export type {
   ExternalSourceConfig,
   ExternalSourceFactory,
   Merge,
-  NoInfer,
   NotWrappable,
   Omit,
   Owner,
